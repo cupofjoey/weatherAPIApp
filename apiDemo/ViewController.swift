@@ -10,11 +10,13 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+    @IBOutlet var cityTextField: UITextField!
+    
+    @IBOutlet var resultLabel: UILabel!
+    
+    @IBAction func submit(_ sender: AnyObject) {
         
-        let url = URL(string: "http://samples.openweathermap.org/data/2.5/weather?q=London,uk&appid=aea7376e6321aec5c7e62c6ece86caa8")!
+        if let url = URL(string: "http://samples.openweathermap.org/data/2.5/weather?q=" + cityTextField.text!.replacingOccurances(of: " ", with: "%20") + ",uk&appid=aea7376e6321aec5c7e62c6ece86caa8") {
         
         let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
             
@@ -36,24 +38,43 @@ class ViewController: UIViewController {
                         
                         if let description = ((jsonResult["weather"] as? NSArray)?[0] as? NSDictionary)?["description"] as? String {
                             
-                            print(description)
-                            
-                            }
-                        
-                        } catch {
-                        
-                       print("JSON Processing Failed")
+                            DispatchQueue.main.sync(execute: {
+                                
+                                self.resultLabel.text = description
+                                
+                            })
                             
                         }
                         
-                    }
+                    } catch {
                         
-                }
+                        print("JSON Processing Failed")
+                        
+                    }
                     
+                }
+                
             }
+            
+        }
         
         task.resume()
+        
+        } else {
+    
+    resultLabel.text = "City Could Not Be Found. Please Try another"
+    
+        }
+    
     }
+    
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
+        
+            }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
